@@ -33,7 +33,7 @@ elseif string.find(pl,'dimmer_[1-5]_stop$') then
 	hc_server_responce=("dimmer_"..dimmer_no.."=stopped")
 	if _G["dimmer_tmr_"..dimmer_no] ~= nil then 
 		_G["dimmer_tmr_"..dimmer_no]:unregister() 
-		_G["dimmer_tmr_"..dimmer_no]=nil
+		--_G["dimmer_tmr_"..dimmer_no]=nil
 		hc_server_responce=("dimmer_"..dimmer_no.."_position="..m["dimmer_"..dimmer_no.."_position"])
 		if m["dimmer_"..dimmer_no.."_position"] > m.dimmer_min then
 			m["dimmer_"..dimmer_no.."_lastvalue"]=m["dimmer_"..dimmer_no.."_position"] 
@@ -78,19 +78,30 @@ if m.dimmer=="enabled" then
 		m["dimmer_"..dimmer_no.."_target"]=dimmer_trg
 		if (_G["dimmer_tmr_"..dimmer_no] == nil) then
 			_G["dimmer_tmr_"..dimmer_no] = tmr.create()
-			pwm.setup(m["dimmer_"..dimmer_no.."_pin"], m.dimmer_freq, m["dimmer_"..dimmer_no.."_position"])	-- set default led value when poweron
+			pwm.setup(m["dimmer_"..dimmer_no.."_pin"], m.dimmer_freq, m["dimmer_"..dimmer_no.."_position"])	
 		end
 		_G["dimmer_tmr_"..dimmer_no]:register(m.dimmer_speed, tmr.ALARM_AUTO, function (t) 
 				if m["dimmer_"..dimmer_no.."_target"] == m["dimmer_"..dimmer_no.."_position"]  then
-					t:unregister() 
+					if m["dimmer_"..dimmer_no.."_position"]==0 then
+						_G["dimmer_tmr_"..dimmer_no]:unregister() 
+						_G["dimmer_tmr_"..dimmer_no]=nil
+					else
+						t:unregister() 
+					end		
 				elseif m["dimmer_"..dimmer_no.."_target"] > m["dimmer_"..dimmer_no.."_position"] then
-					m["dimmer_"..dimmer_no.."_position"]=m["dimmer_"..dimmer_no.."_position"]+4
+					m["dimmer_"..dimmer_no.."_position"]=m["dimmer_"..dimmer_no.."_position"]+10
 				elseif m["dimmer_"..dimmer_no.."_target"] < m["dimmer_"..dimmer_no.."_position"] then
-					m["dimmer_"..dimmer_no.."_position"]=m["dimmer_"..dimmer_no.."_position"]-4
+					m["dimmer_"..dimmer_no.."_position"]=m["dimmer_"..dimmer_no.."_position"]-10
 				end
 				pwm.setduty(m["dimmer_"..dimmer_no.."_pin"],m["dimmer_"..dimmer_no.."_position"])
 		end)
 		_G["dimmer_tmr_"..dimmer_no]:start()
+	end
+	for var,val in pairs(m) do
+		local _,_,dmr = string.find(var, "dimmer_(%d)_pin")
+		if dmr then
+			Dimmer(dmr,m["dimmer_"..dmr.."_position"])
+		end
 	end
 end
 

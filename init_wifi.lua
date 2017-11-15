@@ -84,7 +84,7 @@ else
 		wifi.ap.setip(AP_IP_cfg)
 -- Dhcp Server
 		dhcp_config ={}
-		dhcp_config.start = "192.168.50.10"
+		dhcp_config.start = "192.168.4.2"
 		wifi.ap.dhcp.config(dhcp_config)
 		wifi.ap.dhcp.start()
 	end

@@ -13,7 +13,7 @@ function remote_cmd(rsrv,rval)
 		c:close() 
 		remote_cmd_busy=0 
  	end)
-	rsend:connect(87,rsrv)
+	rsend:connect(80,rsrv)
 end
 --print(node.heap())
 --node.compile("m_client.lua")

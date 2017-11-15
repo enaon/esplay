@@ -57,7 +57,7 @@ elseif  string.find(pl,'wifi') then
 		wifi.sta.getap(1, listap)
 	elseif  (string.find(pl,'_result$') and node_wifi_scan~=nil) then
 	  	hc_server_responce=node_wifi_scan
-	elseif  (string.find(pl,'_active$') and node_wifi==3) then
+	elseif  (string.find(pl,'_active$') and node_wifimode==3) then
 		hc_server_responce="Nodes connected to AP :\n"
 		for mac,ip in pairs(wifi.ap.getclient()) do
   			hc_server_responce=(hc_server_responce..(ip.." - "..mac.."\n"))

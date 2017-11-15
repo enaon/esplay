@@ -157,6 +157,9 @@ if  m.petdoor=="enabled" then
 				--if m.petdoor_front_door_state~="closed" and m.petdoor_front_door_state~="closing" then
 					front_door("close")
 				end
+		elseif action=="stop" then	
+				pwm.stop(m.petdoor_front_door)
+				wifi.sleeptype(wifi.LIGHT_SLEEP)			
 		end
 	end
 --	

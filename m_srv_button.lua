@@ -3,25 +3,23 @@ if  m.button=="enabled" then
 m.button="started" 
 for var,val in pairs(m) do
 	if string.find(var,'button_[1-5]$') then
-		local id=(string.sub(var, 8, 8))
- 		m[var.."_lastpress"]=0
 		m[var.."_state"]=0
-		_G[var.."_function"]=function(level)
-		--print("lala")
+		m[var.."_lastpress"]=0
+ 		_G[var.."_function"]=function()
 			local delay = 50000 
 			local now = tmr.now()
 			local delta = now - m[var.."_lastpress"]
 			if delta < 0 then delta = delta + 2147483647 end
 			if delta < delay then  return end
-			if gpio.read(m["button_"..id]) == m[var.."_press"] and m[var.."_state"] == 0 then
+			if gpio.read(m[var]) == m[var.."_press"] and m[var.."_state"] == 0 then
 				m[var.."_state"]=1
 				if _G[var.."_group_dn"] then	m[var.."_group"]=var.."_group_dn"	end
 				m[var.."_lastpress"] = tmr.now()
-			elseif gpio.read(m["button_"..id]) ~= m[var.."_press"] and m[var.."_state"] == 1 then
+			elseif gpio.read(m[var]) ~= m[var.."_press"] and m[var.."_state"] == 1 then
 				m[var.."_state"]=0
 				if delta < 250000 and _G[var.."_group_up"] then
 					m[var.."_group"]=var.."_group_up"
-				elseif _G[var.."_group_long_up"] then
+				elseif delta > 250000 and _G[var.."_group_long_up"] then
 					m[var.."_group"]=var.."_group_long_up"
 				end	
 			end
@@ -34,7 +32,7 @@ for var,val in pairs(m) do
 			end
 		end  
 		
-		if m["button_"..id]==8 then 
+		if m[var.."_press"]==1 then 
 			gpio.mode(val, gpio.INT)
 		else
 			gpio.mode(val, gpio.INT, gpio.PULLUP) 

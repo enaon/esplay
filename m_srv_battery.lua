@@ -3,8 +3,9 @@ hc_server_responce=("No command "..pl.." found\n-options are battery_[status|det
 if  string.find(pl,'battery_status')  then
 	hc_server_responce=("battery_state="..m.battery_state.."-"..adc.readvdd33(0)/1000 .. "V")
 elseif  string.find(pl,'battery_details$') then
-		if file.exists("log_battery.txt") then
+		if file.exists("log_battery.txt") and m.battery_run~=1  then
 			log_inq()
+			if m.battery_voltage_last and m.battery_voltage_last~=m.battery_voltage_start then 
 			m.battery_freq=m.battery_loop/60000
 			local battery_uptime=m.battery_freq*m.battery_run
 			local battery_days,battery_hours,battery_mins=0,0,0
@@ -22,7 +23,7 @@ elseif  string.find(pl,'battery_details$') then
 			local battery_uptime=m.battery_freq*m.battery_run
 			local battery_remain_uptime=((m.battery_voltage_last-3300)/(m.battery_voltage_start-m.battery_voltage_last))*battery_uptime
 			local battery_remain_days,battery_remain_hours,battery_remain_mins=0,0,0
-				repeat
+			repeat
 				if battery_remain_uptime>=60 then 
 					battery_remain_hours=battery_remain_hours+1
 					battery_remain_uptime=battery_remain_uptime-60
@@ -35,14 +36,21 @@ elseif  string.find(pl,'battery_details$') then
 			battery_remain_mins=battery_remain_uptime
 			hc_server_responce=("uptime="..battery_days.."days/"..battery_hours.."hours/"..battery_mins.."minutes\nvoltage="..m.battery_voltage_last.."\nremain="..battery_remain_days.."days/"..battery_remain_hours.."hours/"..battery_remain_mins.."minutes")
 			m.battery_state_detail=hc_server_responce
-			end	
+			else
+				hc_server_responce=('error found in stats\n')
+			end
+		elseif m.battery_run==1 then 
+			hc_server_responce=('please wait for stats\n')
+		end	
 elseif  string.find(pl,'battery_log_') then
-	if  string.find(pl,'put')  then
+	local localpl=pl
+	if  string.find(localpl,'put')  then
 		log_battery = file.open("log_battery.txt", "w")
 		log_battery:writeline("1-init-"..m.battery_voltage_start.."mV")
-		log_battery:writeline(m.battery_run.."-"..string.sub(pl, 17,50 ))
+		log_battery:writeline(m.battery_run.."-"..string.sub(localpl, 17,50 ))
 		log_battery:close(); log_battery= nil
-	elseif  string.find(pl,'get$') then
+		hc_server_responce=('entry_added')
+	elseif  string.find(localpl,'get$') then
 		if file.exists("log_battery.txt") then
 			log_battery = file.open("log_battery.txt", "r")
 			hc_server_responce=(log_battery:read())
@@ -50,7 +58,7 @@ elseif  string.find(pl,'battery_log_') then
 		else
 			hc_server_responce=('no_logs')
 		end	
-	elseif  string.find(pl,'clear_all$') then
+	elseif  string.find(localpl,'clear_all$') then
 		log_init()
 		hc_server_responce=('alarms cleared\n')
 	end
@@ -63,15 +71,14 @@ if  m.battery=="enabled" then
 		m.battery_run=1
 		m.battery_voltage_start=adc.readvdd33(0)
 		m.battery_voltage_last=m.battery_voltage_start
-		log_battery = file.open("log_battery.txt", "w")
+		log_battery=file.open("log_battery.txt", "w")
 		log_battery:writeline("1-init-"..m.battery_voltage_start.."mV")
-		log_battery:close(); log_battery= nil
-		log_line=nil
+		log_battery:close(); log_battery=nil
 	end
 	function log_inq()
-		log_battery= file.open("log_battery.txt", "r")
+		log_battery=file.open("log_battery.txt", "r")
 		repeat
-			local log_line= log_battery:readline()
+			local log_line=log_battery:readline()
 			if m.battery_voltage_start==nill and log_line and string.match(log_line, '1%-%a+%-(%d+)mV') then
 				m.battery_voltage_start=string.match(log_line, '1%-%a+%-(%d+)mV')
 			elseif log_line and string.match(log_line, '[^1]%-%a+%-(%d+)mV') then
@@ -85,7 +92,7 @@ if  m.battery=="enabled" then
 	if file.exists("log_battery.txt") then
 		log_inq()
 		local battery_now=adc.readvdd33(0)
-		if battery_now>=m.battery_voltage_last+200 or  battery_now>=4250 then
+		if (m.battery_voltage_last and battery_now>=m.battery_voltage_last+200) or  battery_now>=4250 then
 			log_init()
 		end
 	else
@@ -122,7 +129,7 @@ if  m.battery=="enabled" then
 				m.battery_group=nil
 		end
 		local_cmd(battery,("battery_log_put_"..m.battery_state.."-"..adc.readvdd33(0) .."mV"))
-		local_cmd(battery,"battery_details")
+		--local_cmd(battery,"battery_details")
 	end)
 	battery_tmr:start()
 --

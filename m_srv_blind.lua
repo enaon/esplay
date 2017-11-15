@@ -59,8 +59,9 @@ if  m.blind=="enabled" then
 		m["blind_"..BLINDno.."_target"]=target
 		if delay then	delay=delay*10 end
 		if  (_G["blind_tmr_"..BLINDno] == nil) then 
-		_G["blind_tmr_"..BLINDno] = tmr.create()
+			_G["blind_tmr_"..BLINDno] = tmr.create()
 			pwm.setup(m["blind_"..BLINDno.."_pin"], m["blind_"..BLINDno.."_freq"], m["blind_"..BLINDno.."_position"])	-- for walkera (56---240)
+			--pwm.setup(m["blind_"..BLINDno.."_pin"], m["blind_freq"], m["blind_"..BLINDno.."_position"])	-- for walkera (56---240)
 		end
 
 		_G["blind_tmr_"..BLINDno]:register(m["blind_"..BLINDno.."_speed"], tmr.ALARM_AUTO, function (t) 
@@ -81,6 +82,12 @@ if  m.blind=="enabled" then
 				pwm.setduty(m["blind_"..BLINDno.."_pin"],m["blind_"..BLINDno.."_position"])
 			end)
 		_G["blind_tmr_"..BLINDno]:start()
+	end
+	for var,val in pairs(m) do
+		local _,_,blnd = string.find(var, "blind_(%d)_pin")
+		if blnd then
+			MoveServo(blnd,m["blind_"..blnd.."_position"],1)
+		end
 	end
 end
 
