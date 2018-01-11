@@ -1,16 +1,19 @@
 hc_server_responce=("No command "..pl.." found\nOptions dist_[get]_[cont]_[stop]")	
 if (pl=="dist_get") then --stop
- measure()
+ --measure()
 hc_server_responce=("distance:"..distance);
 elseif (pl=="dist_get_cont") then --stop
 CONTINUOUS = true
+measure()
+m.dist_state="on"
 hc_server_responce=("continuous enabled");
 elseif (pl=="dist_get_cont_stop") then --stop
 CONTINUOUS = false
+m.dist_state="off"
 hc_server_responce=("continuous disabled");
 end
-if m.hr04=="enabled" then
-m.hr04="started"
+if m.dist=="enabled" then
+m.dist="started"
 READING_INTERVAL = math.ceil(((max_dist *2/ 340*1000) + TRIG_INTERVAL)*1.2)
 -- initialize global variables
 time_start = 0
@@ -26,14 +29,20 @@ end
 function done_measuring()
 --	print("Distance: "..string.format("%.3f", distance).." Readings: "..#readings)
 	distance=distance*100
+	--if distance_last and (distance >= distance_last+20 or distance <= distance_last-20) then 
+	--	distance=distance_last 
+	--else
+	--	distance_last=distance 
+	--end
+
 --	print(distance)
 	if distance >100 then
-	remote_cmd("192.168.51.1","car_frwd")
-	remote_cmd("192.168.51.1","car_speed_99")
+	--remote_cmd("192.168.51.1","car_frwd")
+	--remote_cmd("192.168.51.1","car_speed_99")
 	elseif distance <=55 then
-	remote_cmd("192.168.51.1","car_left")
+	--remote_cmd("192.168.51.1","car_left")
 	elseif distance <=90 then
-	remote_cmd("192.168.51.1","car_speed_85")
+	--remote_cmd("192.168.51.1","car_speed_85")
 	end	
 	if CONTINUOUS then
 		node.task.post(measure)
@@ -46,20 +55,35 @@ function calculate()
 	-- got a valid reading
 	if echo_time > 0 then
 		-- distance = echo time (or high level time) in seconds* velocity of sound (340M/S) / 2
-		local distance = echo_time *340 / 2
+		distance = echo_time *340 / 2
 		table.insert(readings, distance)
 	end
 	-- got all readings
-	if #readings >= AVG_READINGS then
+	--if #readings >= AVG_READINGS then
 		tmr.stop(0)
 		-- calculate the average of the readings
-		distance = 0
-		for k,v in pairs(readings) do
-			distance = distance + v
-		end
-		distance = distance / #readings
+	--	distance = 0
+	--	dist_temp=0
+	--	dist_count=0
+	--	for k,v in pairs(readings) do
+		--	dist_count=dist_count+1
+		--	if v==0  then	
+		--		dist_count=dist_count-1
+		--	elseif	dist_count==1 then 
+	--			distance = distance + v
+		--	else
+		--		dist_temp=distance+v
+		--		if v >= (dist_temp/dist_count)-0.1 and v <= (dist_temp/dist_count)+0.1  then
+		--		distance = distance + v
+		--		else 
+		--			dist_count=dist_count-1	
+		--		end
+		--	end
+	--	end
+	--	distance = distance / #readings
+		--distance = distance / dist_count
 		node.task.post(done_measuring)
-	end
+	--end
 end
 -- echo callback function called on both rising and falling edges
 function echo_callback(level)

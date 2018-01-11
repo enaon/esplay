@@ -1,4 +1,4 @@
-print("starting hc server on port 87")
+print("starting hc server on port 80")
 hc_server=net.createServer(net.TCP,10) 
 m.node="started"
 local_cmd=function(file,input)

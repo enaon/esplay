@@ -20,10 +20,10 @@ else
 	if file.exists("m_client.lc") then  dofile("m_client.lc")  end
 	if file.exists("init_var.lc") then  dofile("init_var.lc") set_modules()  init_modules() set_modules,init_modules=nil,nil 	end
 	init_tmr=tmr.create()
-		tmr.register(init_tmr, 500, tmr.ALARM_SINGLE, function () 
-		normal()
-		init_tmr=nil	
-		end)		
+	tmr.register(init_tmr, 500, tmr.ALARM_SINGLE, function () 
+	normal()
+	--init_tmr=nil	
+	end)		
 	tmr.start(init_tmr)
 end
 --print(node.heap())

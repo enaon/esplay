@@ -14,6 +14,17 @@
 --print("x:"..compass.x.."\ny:"..compass.y)
 --end)
 --compass_tmr:start()
+
+--sda, scl = 1, 2
+--i2c.setup(0, sda, scl, i2c.SLOW) -- call i2c.setup() only once
+--hmc5883l.setup()
+--compass_tmr=tmr.create()
+--compass_tmr:register(300, tmr.ALARM_AUTO, function(t)
+--x,y,z = hmc5883l.read()
+--print(string.format("x = %d, y = %d, z = %d", x*0.92, z*0.92, y*0.92))
+--end)
+--compass_tmr:start()
+--
 ------------------------------------------------------------------------------
 local M
 do
