@@ -12,7 +12,7 @@ local_cmd=function(file,input)
 		elseif  string.find(pl,'GET /') and m.http then
                 	dofile("m_srv_http.lc")			
 		else 
-			hc_server_responce=("No module "..pl.." found\nOptions are:\nnode,dimmer,buzzer,speaker,button,petdoor,blind,car,dist,log,battery\nif enabled in init_starup.lc")	
+			hc_server_responce=("No module "..pl.." found\nOptions are:\nnode,dimmer,buzzer,speaker,button,petdoor,blind,car,dist,log,battery\nif enabled in init_var.lc")	
 		end
 end
 hc_server:listen(80,function(con) 

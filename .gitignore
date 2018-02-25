@@ -2,3 +2,5 @@
 *init_var_*
 .vscode/*
 *.txt
+*.c9
+*.gitignore
